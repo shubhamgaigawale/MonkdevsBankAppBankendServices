@@ -3,10 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Bank Application Backend.iml" filepath="$PROJECT_DIR$/.idea/Bank Application Backend.iml" />
-      <module fileurl="file://$PROJECT_DIR$/accounts/accounts.iml" filepath="$PROJECT_DIR$/accounts/accounts.iml" />
-      <module fileurl="file://$PROJECT_DIR$/cards/cards.iml" filepath="$PROJECT_DIR$/cards/cards.iml" />
-      <module fileurl="file://$PROJECT_DIR$/configserver/configserver.iml" filepath="$PROJECT_DIR$/configserver/configserver.iml" />
-      <module fileurl="file://$PROJECT_DIR$/loan/loan.iml" filepath="$PROJECT_DIR$/loan/loan.iml" />
     </modules>
   </component>
 </project>

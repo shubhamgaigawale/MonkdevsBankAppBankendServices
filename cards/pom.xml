@@ -55,7 +55,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-bus-amqp</artifactId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -84,7 +88,7 @@
 				<version>3.4.0</version>
 				<configuration>
 					<to>
-						<image>monkdevs/${project.artifactId}:s6</image>
+						<image>monkdevs/${project.artifactId}:s8</image>
 					</to>
 				</configuration>
 			</plugin>

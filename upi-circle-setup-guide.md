@@ -1,0 +1,166 @@
+
+# UPI Circle Microservice Setup Guide
+
+This guide will help you set up and run the UPI Circle microservice locally.
+
+---
+
+## 🛠️ Steps to Set Up UPI Circle Microservice
+
+### 1. Pull the latest code from the UPI Circle repository.
+
+UPI Circle consists of the following projects:
+
+- `com-fsl-microservice-paymentupicircle` (Endpoints/API)  
+- `com-fsl-microservice-paymentupicircle-model` (Inbound Models)  
+- `com-fsl-outbound-paymentupicircle-model` (Outbound Models)
+
+---
+
+### 2. Configure Dependency
+
+Open `pom.xml` from base project:  
+`TSG1_2259_iMobile3.0_FSL_BASEPROJECTS/com-fsl-microservice-APP/pom.xml`
+
+Add this dependency:
+
+```xml
+<dependency>
+  <groupId>com-fsl-microservice</groupId>
+  <artifactId>com-fsl-microservice-paymentupicircle</artifactId>
+  <version>0.0.7</version>
+</dependency>
+```
+
+---
+
+### 3. Configure Endpoints in Properties
+
+File:  
+`TSG1_2259_iMobile3.0_FSL_CLOUD_CONFIG/fsl-properties/fsl-dev.properties`
+
+```properties
+FWK.EAI.UpicircleGetLinkedDelegateDetails1.url = https://apimanuat.icicibankltd.com/v1/api/UPI2_0/GetLinkDelegateDetails
+```
+
+---
+
+### 4. Configure `bootstrap.yml`
+
+File:  
+`TSG1_2259_iMobile3.0_FSL_BASEPROJECTS/com-fsl-microservice-APP/src/main/resources/bootstrap.yml`
+
+```yaml
+server:
+  port: 8004
+  servlet:
+    context-path: /payment/upi/circle
+
+LOG_FILE_NAME = payment-upi-circle
+```
+
+---
+
+### 5. Update `application.properties` of SpringCloudConfigService
+
+File:  
+`TSG1_2259_iMobile3.0_FSL_BASEPROJECTS/SpringCloudConfigServer/src/main/resources/application.properties`
+
+```properties
+spring.cloud.config.server.native.searchLocations=/Users/shubhamg/git/TSG1_2259_iMobile3.0_FSL_CLOUD_CONFIG/fsl-properties,/Users/shubhamg/git/TSG1_2259_iMobile3.0_FSL_CLOUD_CONFIG/fwk-properties
+```
+
+> 🔄 **Note**: Update with your local path.
+
+---
+
+## ▶️ Build and Run the Microservice
+
+### Build projects in STS in the following sequence:
+
+1. `com-fsl-microservice-paymentupicircle-model`  
+2. `com-fsl-outbound-paymentupicircle-model`  
+3. `com-fsl-microservice-paymentupicircle`  
+4. `com-fsl-microservice-APP`
+
+### Screenshots:
+
+<img src="screenshots/Screenshot 2025-07-08 at 12.00.48 PM.png" width="500"/>  
+<img src="screenshots/Screenshot 2025-07-08 at 12.00.30 PM.png" width="500"/>
+
+---
+
+### Run projects from Spring Boot Dashboard
+
+<img src="screenshots/Screenshot 2025-07-08 at 11.51.37 PM.png" width="500"/>
+
+Start:
+
+- `SpringCloudConfigService`  
+- `com-fsl-microservice-APP`
+
+<img src="screenshots/Screenshot 2025-07-08 at 11.55.33 PM.png" width="500"/>
+
+---
+
+### Console Logs Verification
+
+**For com-fsl-microservice-APP:**  
+<img src="screenshots/Screenshot 2025-07-08 at 12.06.03 PM.png" width="500"/>
+
+**For SpringCloudConfigService:**  
+<img src="screenshots/Screenshot 2025-07-08 at 12.04.22 PM.png" width="500"/>
+
+---
+
+## 📜 Log Files
+
+If any error occurs, check the following logs:
+
+- `mw-app-1.log`:  
+  `TSG1_2259_iMobile3.0_FSL_BASEPROJECTS/com-fsl-microservice-APP/mwlogs/mw-app-1.log`
+
+- `timetaken-app-1.log`:  
+  `TSG1_2259_iMobile3.0_FSL_BASEPROJECTS/com-fsl-microservice-APP/mwlogs/timetaken-app-1.log`
+
+---
+
+## 🔁 Test Endpoints
+
+### Health Check
+```bash
+curl --location 'http://localhost:8888/hello'
+```
+
+---
+
+### Test UPI Circle Service
+```bash
+curl --location 'http://localhost:8004/payment/upi/circle/upi-circle-get-linked-delegate-details' \
+--header 'txnID: user1-2021072311043910-1' \
+--header 'channel: mobileApp' \
+--header 'cache-control: no-cache' \
+--header 'userID: 58043583' \
+--header 'orgId: icicibank' \
+--header 'userID_Type: UID' \
+--header 'version: 1.0.0' \
+--header 'SRR: Rk1XVzgo7TQ8L631NSHyNpAST=' \
+--header 'channelVersion: chVers' \
+--header 'token: FT42' \
+--header 'Content-Type: application/json' \
+--header 'deviceID: 330610B0-2193-4FA1-A69A-C5D706C8C849' \
+--header 'internaltest: imobile' \
+--data '{
+  "requestDtTm": "2025-07-07 17:31:03.287",
+  "body": {
+    "device-id": "ae27bd55c72fd79a",
+    "device-id1": 9965235086,
+    "profile-id": 330619,
+    "no": "IUID1111122999999111911921888",
+    "channel-code": "IMOBILE",
+    "purpose": 87,
+    "app-id": "com.icicibank.imobile",
+    "initiated-by": "PRIMARY"
+  }
+}'
+```
