@@ -1,0 +1,126 @@
+## [IMO-21618] Steps to Set up FSL service : 
+
+Steps to create endpoint in UPI circle : 
+
+
+// Put image here 
+￼￼
+UPI Circle consists of the following projects:
+x
+- `com-fsl-microservice-paymentupicircle` (Endpoints/API)
+- `com-fsl-microservice-paymentupicircle-model` (Inbound Models)
+- `com-fsl-outbound-paymentupicircle-model` (Outbound Models)
+
+
+Step 1 : Create Controller and service 
+
+       1. Create package for controller and service depending on type of service.
+
+                    1. Integration Service : 
+                         Pkg name : com.fsl.payment.integ.upicirclegetlinkdelegatedetails — Represents integration service which contains controller and    
+                         service.
+
+                         Controller — > UpiCircleGetLinkedDelegateDetailsICntlr — (Integration controller ends with ICntlr)
+                         Service —> UpiCircleGetLinkedDelegateDetailsISvc — (Integration service ends with ISvc)
+                         
+                            --> High level implementation/override function in service (Assuming service is extending BaseUpiProfileEmbIntegrationService)
+                                 1. prepare_UPI_request : In this we can read input request (inbound input) and prepare out bound input as requirement.
+                                 2. prepare_MW_response : In this we read out bound output and prepare inbound response
+                                 3. prepare_MW_response_OnFailure --> Need to explore 
+                                 4. integrationEndpointID : return service id of integration service
+                                 5. myUpiProfileIntegRequestBodyType :  Return Inbound input
+                                 6. upiOutputDataType : Return Outbound output
+                                 7. customValidations  ---> Need to explore 
+
+                    2. Orchestration service : Chain Orchestration
+                          Pkg name : com.fsl.payment.orchc.upicirclegetlinkdelegatedetails —>  Represents Chain Orchestration service which contains 
+                           controller and service.
+
+                         Controller —> UpiCircleGetLinkedDelegateDetailsCCntlr — (Orch chain controller)
+                         Service —> UpiCircleGetLinkedDelegateDetailsCSvc - (Orch chain service)
+                         
+                           --> High level implementation/override function in service (Assuming service is extending MWOrchestratedChainService)
+                                1. customValidations --> need to explore
+                                2. eval --> need to explore 
+                                3. prepare_ChainRequest : Read request and prepare inbound input for chain integration service
+                                4. prepare_MW_response : Read response from integration service and prepare inbound output (response to UI)
+                                5. myRequestBodyType : return inbound input
+                                6. innerServiceOutputPayloadTypes : Map service Id and type of Inbound Output
+                           
+                         
+                    3. Orchestration service : Parallel Orchestration
+ 
+                          Pkg name :com.fsl.payment.orchp.upicirclegetlinkdelegatedetails —>  Represents Parallel Orchestration service which contains 
+                           controller and service.
+
+                         Controller —> UpiCircleGetLinkedDelegateDetailsPCntlr — (Orch parallel controller)
+                         Service —> UpiCircleGetLinkedDelegateDetailsPSvc - (Orch parallel service)
+
+Step 2 : Create Inbound Models
+
+      1. Create package for inbound models depending on type of service
+      
+                  1. Integration Service : 
+                        Pkg name : com.fsl.payment.integ.upicirclegetlinkdelegatedetail --> Contains inbound (Req and Res) for Integration service
+                        
+                        UpiCircleGetLinkDelegateDetailsIReqBody  -- Request body
+                        UpiCircleGetLinkDelegateDetailsIResBody  -- Response body
+                        
+                  2. Orchestration service : Chain Orchestration
+                  
+                        Pkg name : com.fsl.payment.orchc.upicirclegetlinkdelegatedetail --> Contains inbound (Req and Res) for Orchestration service
+                        
+                        UpiCircleGetLinkDelegateDetailsCReqBody  -- Request body
+                        UpiCircleGetLinkDelegateDetailsCResBody  -- Response body
+
+                  3. Orchestration service : Parallel Orchestration
+                  
+                        Pkg name : com.fsl.payment.orchp.upicirclegetlinkdelegatedetail --> Contains inbound (Req and Res) for Orchestration service
+                        
+                        UpiCircleGetLinkDelegateDetailsPReqBody  -- Request body
+                        UpiCircleGetLinkDelegateDetailsPResBody  -- Response body
+                  
+Step 3 : Create Outbound Models
+
+      1. Create package for outbound models depending on type of service
+       
+                 1. Integration Service : 
+                        Pkg name : com.fsl.outbound.payment.upicirclegetlinkdelegatedetail --> Contains outbound (Req and Res) for Integration service
+                        
+                        UpiCircleGetLinkDelegateDetailsIInput  -- Outbound Request body
+                        UpiCircleGetLinkDelegateDetailsIOutput  -- Outbound Response body
+                        
+                 2. Orchestration service : Chain Orchestration   
+                 
+                 
+                 
+                 3. Orchestration service : Parallel Orchestration
+                 
+                 
+ Step 4 : In paymentupicircle-dev.properties add end point url for newly created service.
+ 
+ E.g.  
+ `FWK.EAI.UpiCircleGetLKinkDelegateDetailsC.url=### CODEGEN: UpiCircleGetLKinkDelegateDetailsC
+
+ FWK.EAI.UpiCircleGetLinkedDelegateDetailsI.url=### CODEGEN: UpiCircleGetLinkedDelegateDetailsI`
+ 
+ Step 5 : For each inbound Request and Response create swagger contract (.yaml) in resources/schemas folder in com-fsl-microservice-paymentupicircle project
+ 
+        E.g. UpiCircleGetLinkedDelegateDetailsI.yaml -- > Contract from Integration service
+             UpiCircleGetLinkedDelegateDetailsC.yaml --> Contract from Orchestration chain service
+             UpiCircleGetLinkedDelegateDetailsP.yaml --> --> Contract from Orchestration parallel service
+             
+             
+ Step 6 : Write Json unit test for swagger contract (.yaml)
+ 
+ 
+ Step 7: For Orchestration service create Chain or Parallel configuration xml file in resources/orch folder in com-fsl-microservice-paymentupicircle project
+ 
+          E.g. 
+          Chain Orchestration : UpiCircleGetLinkedDelegateDetailsC.xml
+          Parallel Orchestration : UpiCircleGetLinkedDelegateDetailsP.xml  (Ref UpiVpaAddrValidateP.xml for configuration)
+          
+ Step 8 : For integration end point add entry in fsl-dev.properties in FSL_CLOUD-CONFIG/fsl-properties
+ 
+ `FWK.EAI.UpiCircleGetLinkedDelegateDetailsI.url=https://apiampuat.icicibankltd.com/v1/api/UPI2_0/GetLinkDelegateDetails`
+ 
