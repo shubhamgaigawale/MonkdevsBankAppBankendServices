@@ -1,9 +1,13 @@
 
-## [IMO-21618] Steps to Set up FSL Service
+# UPI Circle Microservice Setup Guide
 
-### Steps to create endpoint in UPI Circle
+This guide will help you set up and run the UPI Circle microservice locally.
 
-<!-- Put image here -->
+---
+
+## 🛠️ Steps to Set Up UPI Circle Microservice
+
+### 1. Pull the latest code from the UPI Circle repository.
 
 UPI Circle consists of the following projects:
 
@@ -13,162 +17,198 @@ UPI Circle consists of the following projects:
 
 ---
 
-### Step 1: Create Controller and Service
+### 2. Configure Dependency
 
-1. Create package for controller and service depending on type of service.
+Open `pom.xml` from base project:  
+`TSG1_2259_iMobile3.0_FSL_BASEPROJECTS/com-fsl-microservice-APP/pom.xml`
 
-#### 1. Integration Service
+Add this dependency:
 
-- **Package Name:**  
-  `com.fsl.payment.integ.upicirclegetlinkdelegatedetails`  
-  Represents integration service which contains controller and service.
-
-- **Controller:**  
-  `UpiCircleGetLinkedDelegateDetailsICntlr`  
-  *(Integration controller ends with ICntlr)*
-
-- **Service:**  
-  `UpiCircleGetLinkedDelegateDetailsISvc`  
-  *(Integration service ends with ISvc)*
-
-- **High level implementation/override functions in service**  
-  *(Assuming service extends `BaseUpiProfileEmbIntegrationService`)*
-
-  1. `prepare_UPI_request` – Read input request (inbound) and prepare outbound input
-  2. `prepare_MW_response` – Read outbound output and prepare inbound response
-  3. `prepare_MW_response_OnFailure` – Need to explore
-  4. `integrationEndpointID` – Return service ID
-  5. `myUpiProfileIntegRequestBodyType` – Return inbound input
-  6. `upiOutputDataType` – Return outbound output
-  7. `customValidations` – Need to explore
-
-#### 2. Orchestration Service: Chain Orchestration
-
-- **Package Name:**  
-  `com.fsl.payment.orchc.upicirclegetlinkdelegatedetails`
-
-- **Controller:**  
-  `UpiCircleGetLinkedDelegateDetailsCCntlr`
-
-- **Service:**  
-  `UpiCircleGetLinkedDelegateDetailsCSvc`
-
-- **Functions** *(Assuming it extends `MWOrchestratedChainService`)*
-
-  1. `customValidations` – Need to explore
-  2. `eval` – Need to explore
-  3. `prepare_ChainRequest` – Prepare inbound input for chain
-  4. `prepare_MW_response` – Prepare response to UI
-  5. `myRequestBodyType` – Return inbound input
-  6. `innerServiceOutputPayloadTypes` – Map service ID to type
-
-#### 3. Orchestration Service: Parallel Orchestration
-
-- **Package Name:**  
-  `com.fsl.payment.orchp.upicirclegetlinkdelegatedetails`
-
-- **Controller:**  
-  `UpiCircleGetLinkedDelegateDetailsPCntlr`
-
-- **Service:**  
-  `UpiCircleGetLinkedDelegateDetailsPSvc`
-
----
-
-### Step 2: Create Inbound Models
-
-1. Create package for inbound models depending on service type
-
-#### 1. Integration Service
-
-- **Package Name:**  
-  `com.fsl.payment.integ.upicirclegetlinkdelegatedetail`
-
-- **Classes:**
-  - `UpiCircleGetLinkDelegateDetailsIReqBody` – Request body
-  - `UpiCircleGetLinkDelegateDetailsIResBody` – Response body
-
-#### 2. Orchestration: Chain
-
-- **Package Name:**  
-  `com.fsl.payment.orchc.upicirclegetlinkdelegatedetail`
-
-- **Classes:**
-  - `UpiCircleGetLinkDelegateDetailsCReqBody`
-  - `UpiCircleGetLinkDelegateDetailsCResBody`
-
-#### 3. Orchestration: Parallel
-
-- **Package Name:**  
-  `com.fsl.payment.orchp.upicirclegetlinkdelegatedetail`
-
-- **Classes:**
-  - `UpiCircleGetLinkDelegateDetailsPReqBody`
-  - `UpiCircleGetLinkDelegateDetailsPResBody`
-
----
-
-### Step 3: Create Outbound Models
-
-1. Create package for outbound models depending on type of service
-
-#### 1. Integration Service
-
-- **Package Name:**  
-  `com.fsl.outbound.payment.upicirclegetlinkdelegatedetail`
-
-- **Classes:**
-  - `UpiCircleGetLinkDelegateDetailsIInput`
-  - `UpiCircleGetLinkDelegateDetailsIOutput`
-
-#### 2. Orchestration Service: Chain Orchestration
-(*To be added*)
-
-#### 3. Orchestration Service: Parallel Orchestration
-(*To be added*)
-
----
-
-### Step 4: Add Endpoint URL in `paymentupicircle-dev.properties`
-
-Example:
-
-```properties
-FWK.EAI.UpiCircleGetLKinkDelegateDetailsC.url=### CODEGEN: UpiCircleGetLKinkDelegateDetailsC
-FWK.EAI.UpiCircleGetLinkedDelegateDetailsI.url=### CODEGEN: UpiCircleGetLinkedDelegateDetailsI
+```xml
+<dependency>
+  <groupId>com-fsl-microservice</groupId>
+  <artifactId>com-fsl-microservice-paymentupicircle</artifactId>
+  <version>0.0.7</version>
+</dependency>
 ```
 
 ---
 
-### Step 5: Create Swagger Contract (.yaml)
+### 3. Configure Endpoints in Properties
 
-For each request/response, add swagger contract in  
-`resources/schemas` folder of `com-fsl-microservice-paymentupicircle`.
-
-Examples:
-
-- `UpiCircleGetLinkedDelegateDetailsI.yaml` – Integration
-- `UpiCircleGetLinkedDelegateDetailsC.yaml` – Chain Orchestration
-- `UpiCircleGetLinkedDelegateDetailsP.yaml` – Parallel Orchestration
-
----
-
-### Step 6: Write JSON Unit Test for Swagger Contracts
-
----
-
-### Step 7: Add Chain/Parallel Config XML
-
-In `resources/orch` of `com-fsl-microservice-paymentupicircle`:
-
-- Chain: `UpiCircleGetLinkedDelegateDetailsC.xml`
-- Parallel: `UpiCircleGetLinkedDelegateDetailsP.xml`  
-  *(Refer `UpiVpaAddrValidateP.xml` for config)*
-
----
-
-### Step 8: Add Integration Endpoint in `fsl-dev.properties`
+File:  
+`TSG1_2259_iMobile3.0_FSL_CLOUD_CONFIG/fsl-properties/fsl-dev.properties`
 
 ```properties
-FWK.EAI.UpiCircleGetLinkedDelegateDetailsI.url=https://apiampuat.icicibankltd.com/v1/api/UPI2_0/GetLinkDelegateDetails
+FWK.EAI.UpicircleGetLinkedDelegateDetails1.url = https://apimanuat.icicibankltd.com/v1/api/UPI2_0/GetLinkDelegateDetails
+```
+
+---
+
+### 4. Configure `bootstrap.yml`
+
+File:  
+`TSG1_2259_iMobile3.0_FSL_BASEPROJECTS/com-fsl-microservice-APP/src/main/resources/bootstrap.yml`
+
+```yaml
+server:
+  port: 8004
+  servlet:
+    context-path: /payment/upi/circle
+
+LOG_FILE_NAME = payment-upi-circle
+```
+
+---
+
+### 5. Update `application.properties` of SpringCloudConfigService
+
+File:  
+`TSG1_2259_iMobile3.0_FSL_BASEPROJECTS/SpringCloudConfigServer/src/main/resources/application.properties`
+
+```properties
+spring.cloud.config.server.native.searchLocations=/Users/shubhamg/git/TSG1_2259_iMobile3.0_FSL_CLOUD_CONFIG/fsl-properties,/Users/shubhamg/git/TSG1_2259_iMobile3.0_FSL_CLOUD_CONFIG/fwk-properties
+```
+
+> 🔄 **Note**: Update with your local path.
+
+---
+
+
+---
+
+## 📦 Step 6: Install Required JAR Dependencies Manually
+
+Some required dependencies are not available in public Maven repositories and must be installed manually.
+
+1. Download the dependency folder from the shared SharePoint link.  
+   *(Ask your lead or check project documentation for the link.)*
+
+2. The folder will contain required `.jar` files such as:
+    - `internal-lib-example1.jar`
+    - `vendor-toolkit-sample2.jar`
+    - `icici-upi-sdk-custom.jar`
+
+3. Install these JARs into your local Maven repository using the following command:
+
+   ```bash
+   mvn install:install-file -Dfile=<path-to-jar> \
+       -DgroupId=com.icici.internal \
+       -DartifactId=<your-artifact-id> \
+       -Dversion=1.0.0 \
+       -Dpackaging=jar
+   ```
+
+   Replace `<path-to-jar>` and `<your-artifact-id>` as per the JAR you are installing.
+
+4. Repeat the above command for each JAR file.
+
+> 🗂️ This step ensures STS can resolve all required dependencies during build.
+
+
+## ⚙️ Step 7: Install Lombok in Spring Tool Suite (STS)
+
+1. Visit the official Lombok website: [https://projectlombok.org/download](https://projectlombok.org/download)
+2. Download the `lombok.jar` file.
+3. Run the JAR using the following command or double-click:
+   ```bash
+   java -jar lombok.jar
+   ```
+4. Point it to your STS installation directory (e.g., `/Applications/STS.app/Contents/MacOS` on macOS).
+5. Click **Install/Update**.
+6. Restart STS.
+
+> Lombok is required to prevent compile-time errors for annotations like `@Getter`, `@Setter`, etc.
+
+---
+
+## ▶️ Build and Run the Microservice
+
+### Build projects in STS in the following sequence:
+
+1. `com-fsl-microservice-paymentupicircle-model`
+2. `com-fsl-outbound-paymentupicircle-model`
+3. `com-fsl-microservice-paymentupicircle`
+4. `com-fsl-microservice-APP`
+
+### Screenshots:
+
+<img src="screenshots/Screenshot 2025-07-08 at 12.00.48 PM.png" width="500"/>  
+<img src="screenshots/Screenshot 2025-07-08 at 12.00.30 PM.png" width="500"/>
+
+---
+
+### Run projects from Spring Boot Dashboard
+
+<img src="screenshots/Screenshot 2025-07-08 at 11.51.37 PM.png" width="500"/>
+
+Start:
+
+- `SpringCloudConfigService`
+- `com-fsl-microservice-APP`
+
+<img src="screenshots/Screenshot 2025-07-08 at 11.55.33 PM.png" width="500"/>
+
+---
+
+### Console Logs Verification
+
+**For com-fsl-microservice-APP:**  
+<img src="screenshots/Screenshot 2025-07-08 at 12.06.03 PM.png" width="500"/>
+
+**For SpringCloudConfigService:**  
+<img src="screenshots/Screenshot 2025-07-08 at 12.04.22 PM.png" width="500"/>
+
+---
+
+## 📜 Log Files
+
+If any error occurs, check the following logs:
+
+- `mw-app-1.log`:  
+  `TSG1_2259_iMobile3.0_FSL_BASEPROJECTS/com-fsl-microservice-APP/mwlogs/mw-app-1.log`
+
+- `timetaken-app-1.log`:  
+  `TSG1_2259_iMobile3.0_FSL_BASEPROJECTS/com-fsl-microservice-APP/mwlogs/timetaken-app-1.log`
+
+---
+
+## 🔁 Test Endpoints
+
+### Health Check
+```bash
+curl --location 'http://localhost:8888/hello'
+```
+
+---
+
+### Test UPI Circle Service
+```bash
+curl --location 'http://localhost:8004/payment/upi/circle/upi-circle-get-linked-delegate-details' \
+--header 'txnID: user1-2021072311043910-1' \
+--header 'channel: mobileApp' \
+--header 'cache-control: no-cache' \
+--header 'userID: 58043583' \
+--header 'orgId: icicibank' \
+--header 'userID_Type: UID' \
+--header 'version: 1.0.0' \
+--header 'SRR: Rk1XVzgo7TQ8L631NSHyNpAST=' \
+--header 'channelVersion: chVers' \
+--header 'token: FT42' \
+--header 'Content-Type: application/json' \
+--header 'deviceID: 330610B0-2193-4FA1-A69A-C5D706C8C849' \
+--header 'internaltest: imobile' \
+--data '{
+  "requestDtTm": "2025-07-07 17:31:03.287",
+  "body": {
+    "device-id": "ae27bd55c72fd79a",
+    "device-id1": 9965235086,
+    "profile-id": 330619,
+    "no": "IUID1111122999999111911921888",
+    "channel-code": "IMOBILE",
+    "purpose": 87,
+    "app-id": "com.icicibank.imobile",
+    "initiated-by": "PRIMARY"
+  }
+}'
 ```
